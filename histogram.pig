@@ -1,0 +1,14 @@
+L = load '$P' using PigStorage(',') as (red, green, blue);
+red = foreach L generate red;
+green = foreach L generate green;
+blue = foreach L generate blue;
+redcount = group red by red;
+greencount = group green by green;
+bluecount = group blue by blue;
+redfinal = foreach redcount generate 1 as ci, group, COUNT(red);
+greenfinal = foreach greencount generate 2 as ci, group, COUNT(green);
+bluefinal = foreach bluecount generate 3 as ci, group, COUNT(blue);
+combined = UNION redfinal, greenfinal, bluefinal;
+temp = group combined by 1;
+final = foreach temp generate flatten(combined);
+store final into '$O' using PigStorage ('\t');
